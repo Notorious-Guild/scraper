@@ -1,1 +1,1 @@
-web: java -jar build/libs/app.jar
+web: gradle bootRun

@@ -7,14 +7,15 @@ class ScraperDB {
 
   private Connection connection
 
-  // verifyServerCertificate=false&useSSL=true&allowMultiQueries=true
   ScraperDB(String url, String username, String password) {
     connection = DriverManager.getConnection(url, username, password)
   }
 
   List<Player> getPlayers() {
     List<Player> players = new ArrayList<Player>()
-    String sql = "SELECT `name`,`server_code`,`region` FROM `player`"
+    String sql = """
+      SELECT name,server_code,region FROM "player"
+    """
     List playerResults = get(sql)
     playerResults.each { playerMap ->
       players.add(new Player(playerMap))
@@ -23,13 +24,18 @@ class ScraperDB {
   }
 
   Boolean playerExists(Player player) {
-    String sql = "SELECT * FROM `player` WHERE `name` = ?"
+    String sql = """
+      SELECT * FROM "player" WHERE name = ?
+    """
     List playerResults = get(sql, [player.name])
     return playerResults.size() > 0
   }
 
   void insertPlayer(Player player) {
-    String sql = "INSERT INTO `player` VALUES(0,?,?,?)"
+    String sql = """
+      INSERT INTO "player" (name,server_code,region)
+      VALUES(?,?,?);
+    """
     set(sql, [player.name, player.getServerCode(), "us"])
   }
 
@@ -60,7 +66,7 @@ class ScraperDB {
     parameters.eachWithIndex { parameter, index ->
       statement.setObject(index+1, parameter)
     }
-    statement.executeQuery()
+    statement.executeUpdate()
   }
 
   void closeConnection() {

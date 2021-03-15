@@ -1,13 +1,15 @@
-import Database.ScraperDB
-import Discord.EmbedRequest
-import Models.Player
-import Pages.WarcraftLogs.ParsePage
-import Pages.WarcraftLogs.WarcraftLogsPage
-import Pages.WoWProgress.LfgPage
-import Pages.WoWProgress.PlayerPage
-import Pages.WoWProgress.WoWProgPage
-import Util.ClassColors
-import Util.PageScraper
+package Scraper
+
+import Scraper.Database.ScraperDB
+import Scraper.Discord.EmbedRequest
+import Scraper.Models.Player
+import Scraper.Pages.WarcraftLogs.ParsePage
+import Scraper.Pages.WarcraftLogs.WarcraftLogsPage
+import Scraper.Pages.WoWProgress.LfgPage
+import Scraper.Pages.WoWProgress.PlayerPage
+import Scraper.Pages.WoWProgress.WoWProgPage
+import Scraper.Util.ClassColors
+import Scraper.Util.PageScraper
 import groovy.json.JsonException
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j

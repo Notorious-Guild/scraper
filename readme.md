@@ -1,4 +1,4 @@
-## Notorious Scraper
+## Notorious
 
 ### See Customized Recruits
 Using filters customize who you want to see and how often you want to keep track of their guild status.

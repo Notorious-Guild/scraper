@@ -1,4 +1,4 @@
-package Pages.WoWProgress
+package Scraper.Pages.WoWProgress
 
 import org.openqa.selenium.By
 import org.openqa.selenium.remote.RemoteWebDriver

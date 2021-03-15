@@ -1,12 +1,7 @@
-package Database
+package Scraper.Database
 
-import Models.Player
-
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.PreparedStatement
-import java.sql.ResultSet
-import java.sql.ResultSetMetaData
+import Scraper.Models.Player
+import java.sql.*
 
 class ScraperDB {
 

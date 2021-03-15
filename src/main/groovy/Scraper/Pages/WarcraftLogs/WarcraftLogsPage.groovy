@@ -1,6 +1,6 @@
-package Pages.WarcraftLogs
+package Scraper.Pages.WarcraftLogs
 
-import Pages.Page
+import Scraper.Pages.Page
 
 class WarcraftLogsPage extends Page {
 

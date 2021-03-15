@@ -1,4 +1,4 @@
-package Util
+package Scraper.Util
 
 class ClassColors {
 

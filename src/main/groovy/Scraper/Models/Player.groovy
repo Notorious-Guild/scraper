@@ -1,4 +1,4 @@
-package Models
+package Scraper.Models
 
 class Player {
   String name

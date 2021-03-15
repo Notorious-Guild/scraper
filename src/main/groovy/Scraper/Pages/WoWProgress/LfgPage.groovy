@@ -1,6 +1,6 @@
-package Pages.WoWProgress
+package Scraper.Pages.WoWProgress
 
-import Models.Player
+import Scraper.Models.Player
 import org.openqa.selenium.By
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.remote.RemoteWebDriver

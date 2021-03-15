@@ -1,6 +1,6 @@
-package Pages.WoWProgress
+package Scraper.Pages.WoWProgress
 
-import Pages.Page
+import Scraper.Pages.Page
 
 class WoWProgPage extends Page {
 

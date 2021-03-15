@@ -1,4 +1,4 @@
-package Pages.WarcraftLogs
+package Scraper.Pages.WarcraftLogs
 
 import org.openqa.selenium.By
 import org.openqa.selenium.remote.RemoteWebDriver

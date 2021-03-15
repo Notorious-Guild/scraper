@@ -1,6 +1,6 @@
-package Discord
+package Scraper.Discord
 
-import Models.Player
+import Scraper.Models.Player
 import groovy.json.JsonOutput
 import org.apache.http.entity.StringEntity
 

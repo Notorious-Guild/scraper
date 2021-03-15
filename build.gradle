@@ -16,6 +16,9 @@ repositories {
     mavenCentral()
 }
 
+task stage(dependsOn: ['build', 'clean'])
+build.mustRunAfter clean
+
 dependencies {
     compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'

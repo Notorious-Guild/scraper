@@ -1,1 +1,1 @@
-web: java -jar build/libs/Scraper-1.0-SNAPSHOT.jar
+web: java -jar ./build/libs/Scraper-1.0-SNAPSHOT.jar

@@ -4,12 +4,12 @@ plugins {
 }
 
 group 'gg.notorious'
-version '1.0-SNAPSHOT'
 
 application {
     applicationName = 'Notorious Scraper'
     mainClassName = 'Scraper'
     applicationDefaultJvmArgs = ['-Dgreeting.language=en']
+    archivesBaseName = "app"
 }
 
 repositories {

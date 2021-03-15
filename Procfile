@@ -1,1 +1,1 @@
-web: java -cp build/libs/Scraper-1.0-SNAPSHOT.jar Scraper.main
+web: java -jar build/libs/app.jar

@@ -1,15 +1,13 @@
 package Scraper
 
 import Scraper.BNET.BattlenetRequest
+import Scraper.Pages.WoWProgress.LfgPage
+import Scraper.Pages.WoWProgress.WoWProgPage
 import Scraper.WCL.WCLRequest
 import Scraper.WCL.ProfileRequest
 import Scraper.Database.ScraperDB
 import Scraper.Discord.EmbedRequest
 import Scraper.Models.Player
-import Scraper.Pages.WarcraftLogs.ParsePage
-import Scraper.Pages.WoWProgress.LfgPage
-import Scraper.Pages.WoWProgress.PlayerPage
-import Scraper.Pages.WoWProgress.WoWProgPage
 import Scraper.Util.HttpUtil
 import groovy.json.JsonException
 import groovy.json.JsonSlurper
@@ -136,8 +134,8 @@ class ScrapeResource {
     players.each { player ->
 
       Map links = [
-          warcraftLogs: (new ParsePage(player.name, TARGET_REGION, player.getServerCode())).pageUrl,
-          wowProgress : new PlayerPage(player.name, TARGET_REGION, player.getServerCode()).pageUrl
+          warcraftLogs: "https://www.warcraftlogs.com/character/us/$player.serverSlug/$player.name#difficulty=5",
+          wowProgress : "https://www.wowprogress.com/character/us/$player.serverSlug/$player.name"
       ]
 
       EmbedRequest request = new EmbedRequest(player, links, timeStamp)

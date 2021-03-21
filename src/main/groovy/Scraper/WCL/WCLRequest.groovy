@@ -3,6 +3,8 @@ package Scraper.WCL
 import Scraper.Models.Player
 import Scraper.Util.ClassColors
 import Scraper.Util.HttpUtil
+import Scraper.WCL.Queries.GetPlayerData
+
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
@@ -37,7 +39,7 @@ abstract class WCLRequest {
     variables.put("name", playerName)
     variables.put("server", serverName)
 
-    String query = readQueryFromFile("GetPlayer.graphql")
+    String query = new GetPlayerData() as String
 
     Map requestVars = new LinkedHashMap<String, Object>()
     requestVars.put("variables", variables)
@@ -51,6 +53,11 @@ abstract class WCLRequest {
 
     if (responseCode != 200) {
       throw new Exception("Warcraftlogs responded with a non-200 status code.")
+    }
+
+    if (!responseObject["data"]["player"]["character"]) {
+      log.error("Character $playerName does not exist on Warcraftlogs.")
+      return null
     }
 
     if (responseObject["data"]["player"]["character"]["gameData"]["error"]) {
@@ -81,12 +88,6 @@ abstract class WCLRequest {
     player.setMedianPerformance(df.format(zoneRankings["medianPerformanceAverage"]) as Double)
 
     return player
-  }
-
-  private String readQueryFromFile(String fileName) {
-    ClassLoader classLoader = this.getClass().getClassLoader()
-    File file = new File(classLoader.getResource("queries/$fileName").getFile())
-    return file.getText(StandardCharsets.UTF_8.name())
   }
 
   private String generateAccessToken() {

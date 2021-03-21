@@ -1,9 +1,17 @@
 package Scraper.Pages.WoWProgress
 
 import Scraper.Models.Player
-import org.openqa.selenium.By
-import org.openqa.selenium.WebElement
-import org.openqa.selenium.remote.RemoteWebDriver
+import com.sun.org.apache.xml.internal.dtm.ref.DTMNodeList
+import org.htmlcleaner.CleanerProperties
+import org.htmlcleaner.DomSerializer
+import org.htmlcleaner.HtmlCleaner
+import org.htmlcleaner.TagNode
+import org.w3c.dom.Document
+
+import javax.xml.xpath.XPath
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
+import java.nio.charset.StandardCharsets
 
 class LfgPage extends WoWProgPage {
 
@@ -15,30 +23,66 @@ class LfgPage extends WoWProgPage {
 
   /**
    * Gets Recent Players that have set an lfg status
-   * @param RemoteWebDriver driver
    * @param String filterRegion
-   * @return List<Player> players
+   * @param Double filterItemLevel
+   * @return List<Player>  players
    */
-  List<Player> getPlayers(RemoteWebDriver driver, String filterRegion = "all", Double filterItemLevel = null) {
+  List<Player> getPlayers(String filterRegion = "all", Double filterItemLevel = 0.00) {
+    def get = new URL(pageUrl).openConnection()
+    def html = get.getInputStream().getText(StandardCharsets.UTF_8.name())
 
-    WebElement table = driver.findElement(By.xpath(LFG_TABLE_PLAYERS))
-    List<WebElement> rows = table.findElements(By.xpath(".//tr"))
+    TagNode tagNode = new HtmlCleaner().clean(html)
+    Document doc = new DomSerializer(new CleanerProperties()).createDOM(tagNode)
+
+    XPath xpath = XPathFactory.newInstance().newXPath()
+    DTMNodeList output = xpath.evaluate(LFG_TABLE_PLAYERS, doc, XPathConstants.NODESET)
+
+    def table = output.item(0).getChildNodes().item(0).getChildNodes()
 
     List<Player> players = new ArrayList<Player>()
-    rows.each {
-      try {
-        Player player = new Player()
 
-        Double itemLevel = it.findElements(By.xpath(".//td")).get(4).getText() as Double
-        if(filterItemLevel && itemLevel >= filterItemLevel) {
-          player.setName(it.findElements(By.xpath(".//td")).get(0).getText())
-          player.setServer(it.findElements(By.xpath(".//td")).get(3).getText())
-          player.setItemLevel(itemLevel)
-
-          players.push(player)
-        }
-      } catch (Exception ignored) {}
+    for (def i = 0; i < table.getLength(); i++) {
+      players.add(new Player())
     }
+
+    for (def x = 1; x < table.getLength(); x++) {
+
+      def rowData = table.item(x).getChildNodes()
+
+      def serverData = rowData.item(3).getChildNodes().item(0).getChildNodes().item(0).getChildNodes()
+      def nameData = rowData.item(0).getChildNodes().item(0).getChildNodes()
+      def ilvlData = rowData.item(4).getChildNodes()
+
+      // add names
+      for (def i = 0; i < nameData.getLength(); i++) {
+        def preName = nameData.item(i).toString()
+        def finalName = preName.split("\\[#text: ")[1].replaceAll("]", new String())
+        players.get(x).setName(finalName)
+      }
+
+      // add servers
+      for (def i = 0; i < serverData.getLength(); i++) {
+        def preName = serverData.item(i).toString()
+        def finalName = preName.split("\\[#text: ")[1].replaceAll("]", new String())
+        players.get(x).setServer(finalName)
+      }
+
+      // add ilvl
+      for (def i = 0; i < ilvlData.getLength(); i++) {
+        def preName = ilvlData.item(i).toString()
+        def finalName = preName.split("\\[#text: ")[1].replaceAll("]", new String())
+        players.get(x).setItemLevel(finalName as Double)
+      }
+    }
+
+    players.removeAll { Player player ->
+      player.getName() == null
+    }
+
+    players.removeAll() { Player player ->
+      player.getItemLevel() < filterItemLevel
+    }
+
     return players
   }
 }

@@ -3,6 +3,7 @@ package Scraper.Models
 class Player {
   String name
   String server
+  String serverSlug
   String playerClass
   String battleTag
   String avatarUrl
@@ -30,10 +31,18 @@ class Player {
   }
 
   String getServerCode() {
-    (server.trim().toLowerCase()).replaceAll(" ", "-").replaceAll("'", "-")
+    (server.trim().toLowerCase()).replaceAll(" ", "-").replaceAll("'", "")
   }
 
   String getSpec() {
     return ((specIconUrl =~ /^.*[\\|\/](.+?)\.[^\.]+$/)[0][1]).split('-')[1]
+  }
+
+  void setServer(String server) {
+    this.server = (server as String).replaceAll("-", " ").capitalize()
+  }
+
+  String getServer() {
+    return this.server
   }
 }

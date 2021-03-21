@@ -27,11 +27,6 @@ class EmbedRequest {
               "inline": false
             ],
             [
-              "name": "Raids Per Week",
-              "value": player.raidsPerWeek,
-              "inline": false
-            ],
-            [
               "name": "Best Historic Average Parse",
               "value": "$player.avgPerformance%",
               "inline": false

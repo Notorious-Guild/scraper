@@ -7,8 +7,8 @@ class ScraperDB {
 
   private Connection connection
 
-  ScraperDB(String url, String username, String password) {
-    connection = DriverManager.getConnection(url, username, password)
+  ScraperDB(String url) {
+    connection = DriverManager.getConnection(url)
   }
 
   List<Player> getPlayers() {

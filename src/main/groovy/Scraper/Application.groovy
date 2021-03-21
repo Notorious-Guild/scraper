@@ -5,6 +5,10 @@ import groovy.util.logging.Slf4j
 @Slf4j
 class Application {
   static void main(String[] args) {
-    def ignored = new ScrapeResource()
+    do {
+      def ignored = new ScrapeResource()
+      def frequency = 1000 * (System.getenv("FREQUENCY") as Integer)
+      Thread.sleep(frequency)
+    } while (true)
   }
 }

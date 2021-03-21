@@ -40,7 +40,13 @@ class ScrapeResource {
 
     // Get Players from WoW Prog
     WoWProgPage playerPage = new LfgPage()
-    List<Player> players = playerPage.getPlayers(TARGET_REGION, ITEM_LEVEL_FILTER)
+    List<Player> players = new ArrayList<Player>()
+    try {
+      players = playerPage.getPlayers(TARGET_REGION, ITEM_LEVEL_FILTER)
+    } catch (NullPointerException ignored) {
+      log.error("There was an error on the wowprogress lfg page. please check $playerPage.pageUrl")
+      return
+    }
     List<Player> invalidPlayers = new ArrayList<Player>()
     List<String> addedPlayers = []
 

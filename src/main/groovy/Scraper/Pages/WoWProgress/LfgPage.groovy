@@ -23,11 +23,10 @@ class LfgPage extends WoWProgPage {
 
   /**
    * Gets Recent Players that have set an lfg status
-   * @param String filterRegion
    * @param Double filterItemLevel
    * @return List<Player>  players
    */
-  List<Player> getPlayers(String filterRegion = "all", Double filterItemLevel = 0.00) {
+  List<Player> getPlayers(Double filterItemLevel = 0.00) {
     def get = new URL(pageUrl).openConnection()
     def html = get.getInputStream().getText(StandardCharsets.UTF_8.name())
 

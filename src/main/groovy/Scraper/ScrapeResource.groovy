@@ -23,10 +23,9 @@ import org.joda.time.DateTimeZone
 @Slf4j
 class ScrapeResource {
 
-  static final String TARGET_REGION = "us"
-  static final Double PERFORMANCE_FILTER = 80.00
-  static final Double ITEM_LEVEL_FILTER = 220.00
-  static final int MIN_PROGRESS = 8
+  static final Double PERFORMANCE_FILTER = System.getenv('PERFORMANCE_FILTER') as Double
+  static final Double ITEM_LEVEL_FILTER = System.getenv('ITEM_LEVEL_FILTER') as Double
+  static final int MIN_PROGRESS = System.getenv('MIN_PROGRESS') as Integer
 
   ScrapeResource() {
 
@@ -42,7 +41,7 @@ class ScrapeResource {
     WoWProgPage playerPage = new LfgPage()
     List<Player> players = new ArrayList<Player>()
     try {
-      players = playerPage.getPlayers(TARGET_REGION, ITEM_LEVEL_FILTER)
+      players = playerPage.getPlayers(ITEM_LEVEL_FILTER)
     } catch (NullPointerException ignored) {
       log.error("There was an error on the wowprogress lfg page. please check $playerPage.pageUrl")
       return
@@ -80,7 +79,7 @@ class ScrapeResource {
 
       // Raider.io Info
       URI uri = new URIBuilder('https://raider.io/api/v1/characters/profile')
-          .addParameter('region', TARGET_REGION)
+          .addParameter('region', 'us')
           .addParameter('realm', player.serverCode)
           .addParameter('name', player.name)
           .addParameter('fields', 'mythic_plus_scores_by_season:current:previous')

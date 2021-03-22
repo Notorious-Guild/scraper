@@ -56,12 +56,12 @@ abstract class WCLRequest {
     }
 
     if (!responseObject["data"]["player"]["character"]) {
-      log.error("Character $playerName does not exist on Warcraftlogs.")
+      log.error("Character $playerName-$serverName does not exist on Warcraftlogs.")
       return null
     }
 
     if (responseObject["data"]["player"]["character"]["gameData"]["error"]) {
-      log.error("Character $playerName has an out of date Warcraftlogs profile.")
+      log.error("Character $playerName-$serverName has an out of date Warcraftlogs profile.")
       return null
     }
 
@@ -84,8 +84,12 @@ abstract class WCLRequest {
     player.setBattleTag("test123")
 
     DecimalFormat df = new DecimalFormat("#.##")
-    player.setAvgPerformance(df.format(zoneRankings["bestPerformanceAverage"]) as Double)
-    player.setMedianPerformance(df.format(zoneRankings["medianPerformanceAverage"]) as Double)
+    if (zoneRankings['bestPerformanceAverage']) {
+      player.setAvgPerformance(df.format(zoneRankings['bestPerformanceAverage']) as Double)
+    }
+    if (zoneRankings['medianPerformanceAverage']) {
+      player.setMedianPerformance(df.format(zoneRankings["medianPerformanceAverage"]) as Double)
+    }
 
     return player
   }

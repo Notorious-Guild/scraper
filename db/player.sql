@@ -1,6 +1,7 @@
-CREATE TABLE IF NOT EXISTS `player` (
+CREATE SCHEMA notorious
+  CREATE TABLE player (
     ID SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    server_code VARCHAR(255) NOT NULL,
-    region VARCHAR(255) NOT NULL
-);
+    name CHARACTER (255),
+    server_code CHARACTER (255),
+    region CHARACTER (255)
+  );

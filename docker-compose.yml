@@ -1,15 +1,13 @@
 version: '3.2'
 services:
   db:
-    image: mysql:5.7
+    image: postgres:13
     environment:
-      MYSQL_DATABASE: scraper
-      MYSQL_USER: notadmin
-      MYSQL_PASSWORD: secure123
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      POSTGRES_DB: scraper
+      POSTGRES_USER: notadmin
+      POSTGRES_PASSWORD: secure123
     restart: unless-stopped
     ports:
-      - "1812:3306"
+      - "5432:5432"
     volumes:
       - ./db:/docker-entrypoint-initdb.d

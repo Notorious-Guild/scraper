@@ -23,10 +23,10 @@ import org.joda.time.DateTimeZone
 @Slf4j
 class ScrapeResource {
 
-  static final String TARGET_REGION = "us"
-  static final Double PERFORMANCE_FILTER = 80.00
-  static final Double ITEM_LEVEL_FILTER = 220.00
-  static final int MIN_PROGRESS = 8
+  static final String TARGET_REGION = System.getenv('TARGET_REGION') ?: 'us'
+  static final Double PERFORMANCE_FILTER = System.getenv('PERFORMANCE_FILTER') as Double
+  static final Double ITEM_LEVEL_FILTER = System.getenv('ITEM_LEVEL_FILTER') as Double
+  static final int MIN_PROGRESS = System.getenv('MIN_PROGRESS') as Integer
 
   ScrapeResource() {
 

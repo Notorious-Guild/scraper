@@ -84,8 +84,12 @@ abstract class WCLRequest {
     player.setBattleTag("test123")
 
     DecimalFormat df = new DecimalFormat("#.##")
-    player.setAvgPerformance(df.format(zoneRankings["bestPerformanceAverage"]) as Double)
-    player.setMedianPerformance(df.format(zoneRankings["medianPerformanceAverage"]) as Double)
+    if (zoneRankings['bestPerformanceAverage']) {
+      player.setAvgPerformance(df.format(zoneRankings['bestPerformanceAverage']) as Double)
+    }
+    if (zoneRankings['medianPerformanceAverage']) {
+      player.setMedianPerformance(df.format(zoneRankings["medianPerformanceAverage"]) as Double)
+    }
 
     return player
   }

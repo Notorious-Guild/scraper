@@ -10,6 +10,7 @@ import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.apache.http.HttpHeaders
 import org.apache.http.client.methods.CloseableHttpResponse
+import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.StringEntity
 import org.apache.http.util.EntityUtils
@@ -61,7 +62,8 @@ abstract class WCLRequest {
     }
 
     if (responseObject["data"]["player"]["character"]["gameData"]["error"]) {
-      log.error("Character $playerName-$serverName has an out of date Warcraftlogs profile.")
+      log.error("Character $playerName-$serverName has an out of date Warcraftlogs profile. Will attempt to update.")
+      updateWarcraftlogsProfile(responseObject['data']['player']['character']['canonicalID'])
       return null
     }
 
@@ -114,5 +116,20 @@ abstract class WCLRequest {
       EntityUtils.consume(response.getEntity())
       return token
     }
+  }
+
+  private updateWarcraftlogsProfile(String canonicalID) {
+    HttpGet request = new HttpGet("$api_uri/character/update/$canonicalID")
+
+    CloseableHttpResponse response = httpClient.execute(request)
+    int statusCode = response.getStatusLine().getStatusCode()
+
+    if (statusCode != 200) {
+      log.warn('Warcraftlogs profile update failed.')
+    } else {
+      log.info('Warcraftlogs profile updated successfully.')
+    }
+
+    response.close()
   }
 }

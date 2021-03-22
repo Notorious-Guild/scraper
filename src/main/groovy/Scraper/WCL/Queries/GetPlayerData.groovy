@@ -11,6 +11,7 @@ class GetPlayerData {
           classID
           gameData
           zoneRankings
+          canonicalID
         }
       }
     }

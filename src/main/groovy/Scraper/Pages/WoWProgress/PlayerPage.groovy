@@ -1,50 +1,58 @@
 package Scraper.Pages.WoWProgress
 
-import org.openqa.selenium.By
-import org.openqa.selenium.remote.RemoteWebDriver
+import com.sun.org.apache.xml.internal.dtm.ref.DTMNodeList
+import org.htmlcleaner.CleanerProperties
+import org.htmlcleaner.DomSerializer
+import org.htmlcleaner.HtmlCleaner
+import org.htmlcleaner.TagNode
+import org.w3c.dom.Document
+
+import javax.xml.xpath.XPath
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
+import java.nio.charset.StandardCharsets
 
 class PlayerPage extends WoWProgPage {
 
-  static final String BIO_TEXT = '//*[@id="primary"]/div/div[2]/div[4]/div[11]'
-  static final String RAIDS_PER_WEEK = '//*[@id="primary"]/div/div[2]/div[4]/div[8]/strong'
-  static final String PLAYER_CLASS = '//*[@id="primary"]/div/div[2]/div[2]/div[1]/i/span'
+  static final String BIO_PATH = '//*[@id="primary"]/div/div[2]/div[4]/div[11]'
+  static final String RAIDS_PER_WEEK_PATH = '//*[@id="primary"]/div/div[2]/div[4]/div[8]/strong'
   static final String BTAG_PATH = '//*[@id="primary"]/div/div[2]/div[4]/div[3]/span'
 
-  PlayerPage(String playerName, String playerRegion, String playerServer) {
-    super("/character/$playerRegion/$playerServer/$playerName")
+  private String pageHTML
+
+  PlayerPage(String playerName, String playerServer) {
+    super("/character/us/$playerServer/$playerName")
+    pageHTML = getHTML()
   }
 
-  /**
-   * Gets Player BIO From the WoWProgress Player Info Page
-   * @param RemoteWebDriver driver
-   * @return String bio
-   */
-  String getBio(RemoteWebDriver driver) {
-    try {
-      return driver.findElements(By.xpath(BIO_TEXT)).get(0).getText()
-    } catch (Exception ignored) {return new String()}
+  private String getHTML() {
+    def request = new URL(pageUrl).openConnection()
+    return request.getInputStream().getText(StandardCharsets.UTF_8.name())
   }
 
-  String getRaidsPerWeek(RemoteWebDriver driver) {
+  private String getStringFromXpath(String path) {
+    TagNode tagNode = new HtmlCleaner().clean(pageHTML)
+    Document doc = new DomSerializer(new CleanerProperties()).createDOM(tagNode)
+
+    XPath xpath = XPathFactory.newInstance().newXPath()
+    DTMNodeList output = xpath.evaluate(path, doc, XPathConstants.NODESET) as DTMNodeList
+
     try {
-      String raidsPerWeek = driver.findElements(By.xpath(RAIDS_PER_WEEK)).get(0).getText()
-      if (!raidsPerWeek.contains("-")) {
-        return "Not Specified"
-      }
-      return raidsPerWeek
-    } catch (Exception ignored) {return "Not Specified"}
+      return output.item(0).getChildNodes().item(0).getTextContent().trim()
+    } catch (NullPointerException ignored) {
+      return new String()
+    }
   }
 
-  String getPlayerClass(RemoteWebDriver driver) {
-    try {
-      String playerClass = driver.findElements(By.xpath(PLAYER_CLASS)).get(0).getText().toLowerCase().capitalize()
-      return playerClass
-    } catch (Exception ignored) {return "unknown"}
+  String getBio() {
+    return getStringFromXpath(BIO_PATH)
   }
 
-  String getBattleTag(RemoteWebDriver driver) {
-    try {
-      return driver.findElements(By.xpath(BTAG_PATH)).get(0).getText()
-    } catch (Exception ignored) {return "No Battletag Provided"}
+  String getRaidsPerWeek() {
+    return getStringFromXpath(RAIDS_PER_WEEK_PATH)
+  }
+
+  String getBattleTag() {
+    return getStringFromXpath(BTAG_PATH)
   }
 }

@@ -2,6 +2,7 @@ package Scraper
 
 import Scraper.BNET.BattlenetRequest
 import Scraper.Pages.WoWProgress.LfgPage
+import Scraper.Pages.WoWProgress.PlayerPage
 import Scraper.Pages.WoWProgress.WoWProgPage
 import Scraper.WCL.WCLRequest
 import Scraper.WCL.ProfileRequest
@@ -38,18 +39,18 @@ class ScrapeResource {
     BattlenetRequest bnetRequest = new BattlenetRequest()
 
     // Get Players from WoW Prog
-    WoWProgPage playerPage = new LfgPage()
+    WoWProgPage lfgPage = new LfgPage()
     List<Player> players = new ArrayList<Player>()
     try {
-      players = playerPage.getPlayers(ITEM_LEVEL_FILTER)
+      players = lfgPage.getPlayers(ITEM_LEVEL_FILTER)
     } catch (NullPointerException ignored) {
-      log.error("There was an error on the wowprogress lfg page. please check $playerPage.pageUrl")
+      log.error("There was an error on the wowprogress lfg page. please check $lfgPage.pageUrl")
       return
     }
     List<Player> invalidPlayers = new ArrayList<Player>()
     List<String> addedPlayers = []
 
-    // update players data
+    // update basic player info
     players.each {Player player ->
       if (!profileRequest.update(player)) {
         invalidPlayers.add(player)
@@ -70,12 +71,15 @@ class ScrapeResource {
         || database.playerExists(player)
     }
 
-    // update IO
+    // update player data for player's that passed the filters
     players.each { player ->
-
       log.info("Player $player.name processing...")
 
+      WoWProgPage playerPage = new PlayerPage(player.name, player.serverSlug)
+
       player.setAvatarUrl(bnetRequest.getAvatarUri(player.getName().toLowerCase(), player.getServerSlug()))
+      player.setBio(playerPage.getBio())
+      player.setBattleTag(playerPage.getBattleTag())
 
       // Raider.io Info
       URI uri = new URIBuilder('https://raider.io/api/v1/characters/profile')

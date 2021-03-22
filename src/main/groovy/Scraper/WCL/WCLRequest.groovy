@@ -56,12 +56,12 @@ abstract class WCLRequest {
     }
 
     if (!responseObject["data"]["player"]["character"]) {
-      log.error("Character $playerName does not exist on Warcraftlogs.")
+      log.error("Character $playerName-$serverName does not exist on Warcraftlogs.")
       return null
     }
 
     if (responseObject["data"]["player"]["character"]["gameData"]["error"]) {
-      log.error("Character $playerName has an out of date Warcraftlogs profile.")
+      log.error("Character $playerName-$serverName has an out of date Warcraftlogs profile.")
       return null
     }
 

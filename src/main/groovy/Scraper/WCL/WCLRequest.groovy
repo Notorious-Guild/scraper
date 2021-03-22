@@ -63,7 +63,7 @@ abstract class WCLRequest {
 
     if (responseObject["data"]["player"]["character"]["gameData"]["error"]) {
       log.error("Character $playerName-$serverName has an out of date Warcraftlogs profile. Will attempt to update.")
-      updateWarcraftlogsProfile(responseObject['data']['player']['character']['canonicalID'])
+      updateWarcraftlogsProfile(responseObject['data']['player']['character']['canonicalID'] as String)
       return null
     }
 

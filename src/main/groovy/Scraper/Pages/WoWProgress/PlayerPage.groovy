@@ -53,6 +53,11 @@ class PlayerPage extends WoWProgPage {
   }
 
   String getBattleTag() {
-    return getStringFromXpath(BTAG_PATH)
+    def btag = getStringFromXpath(BTAG_PATH)
+    if (btag == new String()) {
+      return "not provided"
+    } else {
+      return btag
+    }
   }
 }

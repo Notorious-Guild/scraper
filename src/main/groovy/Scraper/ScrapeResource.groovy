@@ -14,10 +14,12 @@ import groovy.json.JsonException
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.utils.URIBuilder
 import org.apache.http.conn.ConnectionPoolTimeoutException
+import org.apache.http.util.EntityUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 
@@ -140,6 +142,7 @@ class ScrapeResource {
 
     def timeStamp = "${date}T${time}.000Z"
 
+    // post players to discord
     players.each { player ->
 
       Map links = [
@@ -151,11 +154,18 @@ class ScrapeResource {
 
       post.setEntity(request.toEntity())
       try {
-        httpClient.execute(post)
+        CloseableHttpResponse response = httpClient.execute(post)
+        def code = response.getStatusLine().getStatusCode()
+        EntityUtils.consume(response.getEntity())
+        if (code != 204) {
+          log.info("Player $player.name unable to post to discord. (HTTP Status $code)")
+          return
+        }
         database.insertPlayer(player)
         addedPlayers.add(player.getName())
       } catch (ConnectionPoolTimeoutException ignored) {
-        log.info("Player $player.name unable to post to discord.")
+        log.info("Player $player.name unable to post to discord. (Timeout)")
+        return
       }
     }
 

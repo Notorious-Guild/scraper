@@ -36,7 +36,6 @@ class PlayerPage extends WoWProgPage {
 
     XPath xpath = XPathFactory.newInstance().newXPath()
     DTMNodeList output = xpath.evaluate(path, doc, XPathConstants.NODESET) as DTMNodeList
-
     try {
       return output.item(0).getChildNodes().item(0).getTextContent().trim()
     } catch (NullPointerException ignored) {
@@ -44,8 +43,21 @@ class PlayerPage extends WoWProgPage {
     }
   }
 
+  private String getStringFromClass(String className) {
+    TagNode tagNode = new HtmlCleaner().clean(pageHTML)
+
+    def elements = tagNode.getElementListByAttValue("class", className, true, false)
+
+    if (elements.size() < 1) {
+      return new String()
+    }
+
+    def response = elements[0].getText()
+    return response.toString().trim()
+  }
+
   String getBio() {
-    return getStringFromXpath(BIO_PATH)
+    return getStringFromClass("charCommentary")
   }
 
   String getRaidsPerWeek() {

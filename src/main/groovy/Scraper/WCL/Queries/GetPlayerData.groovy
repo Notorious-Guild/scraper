@@ -8,6 +8,7 @@ class GetPlayerData {@Override String toString() { return """
         classID
         gameData
         zoneRankings
+        canonicalID
       }
     }
   }

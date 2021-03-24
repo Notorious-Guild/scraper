@@ -5,6 +5,7 @@ class Player {
   String server
   String serverSlug
   String playerClass
+  String spec
   String battleTag
   String avatarUrl
   String specIconUrl
@@ -32,10 +33,6 @@ class Player {
 
   String getServerCode() {
     (server.trim().toLowerCase()).replaceAll(" ", "-").replaceAll("'", "")
-  }
-
-  String getSpec() {
-    return ((specIconUrl =~ /^.*[\\|\/](.+?)\.[^\.]+$/)[0][1]).split('-')[1]
   }
 
   void setServer(String server) {

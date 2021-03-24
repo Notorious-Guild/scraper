@@ -2,6 +2,7 @@ package Scraper
 
 import Scraper.BNET.BattlenetRequest
 import Scraper.Pages.WoWProgress.LfgPage
+import Scraper.Pages.WoWProgress.PlayerPage
 import Scraper.Pages.WoWProgress.WoWProgPage
 import Scraper.WCL.WCLRequest
 import Scraper.WCL.ProfileRequest
@@ -13,10 +14,12 @@ import groovy.json.JsonException
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.utils.URIBuilder
 import org.apache.http.conn.ConnectionPoolTimeoutException
+import org.apache.http.util.EntityUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 
@@ -38,18 +41,18 @@ class ScrapeResource {
     BattlenetRequest bnetRequest = new BattlenetRequest()
 
     // Get Players from WoW Prog
-    WoWProgPage playerPage = new LfgPage()
+    WoWProgPage lfgPage = new LfgPage()
     List<Player> players = new ArrayList<Player>()
     try {
-      players = playerPage.getPlayers(ITEM_LEVEL_FILTER)
+      players = lfgPage.getPlayers(ITEM_LEVEL_FILTER)
     } catch (NullPointerException ignored) {
-      log.error("There was an error on the wowprogress lfg page. please check $playerPage.pageUrl")
+      log.error("There was an error on the wowprogress lfg page. please check $lfgPage.pageUrl")
       return
     }
     List<Player> invalidPlayers = new ArrayList<Player>()
     List<String> addedPlayers = []
 
-    // update players data
+    // update basic player info
     players.each {Player player ->
       if (!profileRequest.update(player)) {
         invalidPlayers.add(player)
@@ -70,12 +73,15 @@ class ScrapeResource {
         || database.playerExists(player)
     }
 
-    // update IO
+    // update player data for player's that passed the filters
     players.each { player ->
-
       log.info("Player $player.name processing...")
 
+      WoWProgPage playerPage = new PlayerPage(player.name, player.serverSlug)
+
       player.setAvatarUrl(bnetRequest.getAvatarUri(player.getName().toLowerCase(), player.getServerSlug()))
+      player.setBio(playerPage.getBio())
+      player.setBattleTag(playerPage.getBattleTag())
 
       // Raider.io Info
       URI uri = new URIBuilder('https://raider.io/api/v1/characters/profile')
@@ -136,6 +142,7 @@ class ScrapeResource {
 
     def timeStamp = "${date}T${time}.000Z"
 
+    // post players to discord
     players.each { player ->
 
       Map links = [
@@ -147,11 +154,18 @@ class ScrapeResource {
 
       post.setEntity(request.toEntity())
       try {
-        httpClient.execute(post)
+        CloseableHttpResponse response = httpClient.execute(post)
+        def code = response.getStatusLine().getStatusCode()
+        EntityUtils.consume(response.getEntity())
+        if (code != 204) {
+          log.info("Player $player.name unable to post to discord. (HTTP Status $code)")
+          return
+        }
         database.insertPlayer(player)
         addedPlayers.add(player.getName())
       } catch (ConnectionPoolTimeoutException ignored) {
-        log.info("Player $player.name unable to post to discord.")
+        log.info("Player $player.name unable to post to discord. (Timeout)")
+        return
       }
     }
 

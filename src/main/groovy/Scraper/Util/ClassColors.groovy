@@ -4,10 +4,10 @@ class ClassColors {
 
   static Integer get(String className) {
     switch(className) {
-      case "deathknight":
+      case "death knight":
         return 12853051
       break
-      case "demonhunter":
+      case "demon hunter":
         return 10694857
       break
       case "druid":

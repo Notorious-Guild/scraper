@@ -73,7 +73,8 @@ abstract class WCLRequest {
     player.setServer(characterData["realm"]["name"] as String)
     player.setServerSlug(characterData["realm"]["slug"] as String)
     player.setPlayerClass(characterData["character_class"]["name"] as String)
-    player.setSpecIconUrl("$avatar_uri/${player.getPlayerClass()}-${characterData["active_spec"]["name"]}.jpg")
+    def urlClass = player.getPlayerClass().toLowerCase().replaceAll(" ", "")
+    player.setSpecIconUrl("$avatar_uri/${urlClass}-${characterData["active_spec"]["name"]}.jpg")
     player.setClassColor(ClassColors.get(player.getPlayerClass().toLowerCase()))
     if (zoneRankings["difficulty"] == 5) {
       int prog = 0
@@ -82,8 +83,6 @@ abstract class WCLRequest {
     } else {
       player.setProgress("0/10")
     }
-    // replace
-    player.setBattleTag("test123")
 
     DecimalFormat df = new DecimalFormat("#.##")
     if (zoneRankings['bestPerformanceAverage']) {

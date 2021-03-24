@@ -31,7 +31,6 @@ dependencies {
     compile group: 'joda-time', name: 'joda-time', version: '2.10.8'
     compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.3'
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.19'
-    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.5'
     compile group: 'net.sourceforge.htmlcleaner', name: 'htmlcleaner', version: '2.24'
     compile 'net.logstash.logback:logstash-logback-encoder:4.7'
     compile 'javax.activation:activation:1.1.1'

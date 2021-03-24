@@ -75,7 +75,7 @@ class ScrapeResource {
 
     // update player data for player's that passed the filters
     players.each { player ->
-      log.info("Player $player.name processing...")
+      log.info("Player $player.name-$player.server processing...")
 
       WoWProgPage playerPage = new PlayerPage(player.name, player.serverSlug)
 
@@ -158,13 +158,13 @@ class ScrapeResource {
         def code = response.getStatusLine().getStatusCode()
         EntityUtils.consume(response.getEntity())
         if (code != 204) {
-          log.info("Player $player.name unable to post to discord. (HTTP Status $code)")
+          log.info("Player $player.name-$player.server unable to post to discord. (HTTP Status $code)")
           return
         }
         database.insertPlayer(player)
         addedPlayers.add(player.getName())
       } catch (ConnectionPoolTimeoutException ignored) {
-        log.info("Player $player.name unable to post to discord. (Timeout)")
+        log.info("Player $player.name-$player.server unable to post to discord. (Timeout)")
         return
       }
     }

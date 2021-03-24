@@ -1,3 +1,5 @@
+import java.nio.charset.Charset
+
 def logLevelByString = [
         "TRACE": TRACE,
         "DEBUG": DEBUG,
@@ -9,6 +11,7 @@ def logLevelByString = [
 appender("STDOUT", ConsoleAppender) {
     encoder(PatternLayoutEncoder) {
         pattern = "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+        charset = Charset.forName('UTF-8')
     }
 }
 

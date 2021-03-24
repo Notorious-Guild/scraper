@@ -167,6 +167,7 @@ class ScrapeResource {
         log.info("Player $player.name unable to post to discord. (Timeout)")
         return
       }
+      Thread.sleep(500)
     }
 
     database.closeConnection()

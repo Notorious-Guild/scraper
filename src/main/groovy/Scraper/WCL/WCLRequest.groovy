@@ -21,7 +21,7 @@ import java.text.DecimalFormat
 @Slf4j
 abstract class WCLRequest {
   private String api_uri = "https://www.warcraftlogs.com"
-  private String avatar_uri = "https://assets.rpglogs.com/img/warcraft/icons"
+  private String icon_uri = "https://assets.rpglogs.com/img/warcraft/icons"
   private httpClient = HttpUtil.httpClient()
   private String accessToken
 
@@ -73,8 +73,10 @@ abstract class WCLRequest {
     player.setServer(characterData["realm"]["name"] as String)
     player.setServerSlug(characterData["realm"]["slug"] as String)
     player.setPlayerClass(characterData["character_class"]["name"] as String)
-    def urlClass = player.getPlayerClass().toLowerCase().replaceAll(" ", "")
-    player.setSpecIconUrl("$avatar_uri/${urlClass}-${characterData["active_spec"]["name"]}.jpg")
+    player.setSpec(characterData["active_spec"]["name"] as String)
+    def urlClass = player.getPlayerClass().toLowerCase().replaceAll(" ", new String())
+    def urlSpec = player.getSpec().toLowerCase().replaceAll(" ", new String())
+    player.setSpecIconUrl("$icon_uri/$urlClass-${urlSpec}.jpg")
     player.setClassColor(ClassColors.get(player.getPlayerClass().toLowerCase()))
     if (zoneRankings["difficulty"] == 5) {
       int prog = 0

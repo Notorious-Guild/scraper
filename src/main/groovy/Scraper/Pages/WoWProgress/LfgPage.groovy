@@ -2,6 +2,7 @@ package Scraper.Pages.WoWProgress
 
 import Scraper.Models.Player
 import com.sun.org.apache.xml.internal.dtm.ref.DTMNodeList
+import groovy.util.logging.Slf4j
 import org.htmlcleaner.CleanerProperties
 import org.htmlcleaner.DomSerializer
 import org.htmlcleaner.HtmlCleaner
@@ -13,6 +14,7 @@ import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 import java.nio.charset.StandardCharsets
 
+@Slf4j
 class LfgPage extends WoWProgPage {
 
   final static String LFG_TABLE_PLAYERS = '//*[@id="char_rating_container"]/table'
@@ -45,32 +47,33 @@ class LfgPage extends WoWProgPage {
     }
 
     for (def x = 1; x < table.getLength(); x++) {
+      try {
+        def rowData = table.item(x).getChildNodes()
 
-      def rowData = table.item(x).getChildNodes()
+        def serverData = rowData.item(3).getChildNodes().item(0).getChildNodes().item(0).getChildNodes()
+        def nameData = rowData.item(0).getChildNodes().item(0).getChildNodes()
+        def ilvlData = rowData.item(4).getChildNodes()
 
-      def serverData = rowData.item(3).getChildNodes().item(0).getChildNodes().item(0).getChildNodes()
-      def nameData = rowData.item(0).getChildNodes().item(0).getChildNodes()
-      def ilvlData = rowData.item(4).getChildNodes()
+        // add names
+        for (def i = 0; i < nameData.getLength(); i++) {
+          def name = nameData.item(i).getTextContent()
+          players.get(x).setName(name)
+        }
 
-      // add names
-      for (def i = 0; i < nameData.getLength(); i++) {
-        def preName = nameData.item(i).toString()
-        def finalName = preName.split("\\[#text: ")[1].replaceAll("]", new String())
-        players.get(x).setName(finalName)
-      }
+        // add servers
+        for (def i = 0; i < serverData.getLength(); i++) {
+          def server = serverData.item(i).getTextContent()
+          players.get(x).setServer(server)
+        }
 
-      // add servers
-      for (def i = 0; i < serverData.getLength(); i++) {
-        def preName = serverData.item(i).toString()
-        def finalName = preName.split("\\[#text: ")[1].replaceAll("]", new String())
-        players.get(x).setServer(finalName)
-      }
-
-      // add ilvl
-      for (def i = 0; i < ilvlData.getLength(); i++) {
-        def preName = ilvlData.item(i).toString()
-        def finalName = preName.split("\\[#text: ")[1].replaceAll("]", new String())
-        players.get(x).setItemLevel(finalName as Double)
+        // add ilvl
+        for (def i = 0; i < ilvlData.getLength(); i++) {
+          def ilvl = ilvlData.item(i).getTextContent()
+          players.get(x).setItemLevel(ilvl as Double)
+        }
+      } catch (Exception ignored) {
+        players.remove(x)
+        log.error("Skipping a player listed as LFG due to malformed table row on $pageUrl")
       }
     }
 

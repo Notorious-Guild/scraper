@@ -53,7 +53,8 @@ abstract class WCLRequest {
     EntityUtils.consume(response.getEntity())
 
     if (responseCode != 200) {
-      throw new Exception("Warcraftlogs responded with a non-200 status code.")
+      log.error("Warcraftlogs responded with a non-200 status code while accessing character ${playerName}-${serverName}")
+      return null
     }
 
     if (!responseObject["data"]["player"]["character"]) {

@@ -42,43 +42,21 @@ class LfgPage extends WoWProgPage {
 
     List<Player> players = new ArrayList<Player>()
 
-    for (def i = 0; i < table.getLength(); i++) {
-      players.add(new Player())
-    }
-
-    for (def x = 1; x < table.getLength(); x++) {
-      try {
-        def rowData = table.item(x).getChildNodes()
-
-        def serverData = rowData.item(3).getChildNodes().item(0).getChildNodes().item(0).getChildNodes()
-        def nameData = rowData.item(0).getChildNodes().item(0).getChildNodes()
-        def ilvlData = rowData.item(4).getChildNodes()
-
-        // add names
-        for (def i = 0; i < nameData.getLength(); i++) {
-          def name = nameData.item(i).getTextContent()
-          players.get(x).setName(name)
-        }
-
-        // add servers
-        for (def i = 0; i < serverData.getLength(); i++) {
-          def server = serverData.item(i).getTextContent()
-          players.get(x).setServer(server)
-        }
-
-        // add ilvl
-        for (def i = 0; i < ilvlData.getLength(); i++) {
-          def ilvl = ilvlData.item(i).getTextContent()
-          players.get(x).setItemLevel(ilvl as Double)
-        }
-      } catch (Exception ignored) {
-        players.remove(x)
-        log.error("Skipping a player listed as LFG due to malformed table row on $pageUrl")
+    (1..(table.getLength()-1)).each { int i ->
+      def row = table.item(i).getChildNodes()
+      if (row.getLength() == 6) {
+        try {
+          Player player = new Player()
+          player.setName(row.item(0).getTextContent())
+          player.setServer(row.item(3).getTextContent())
+          player.setItemLevel(row.item(4).getTextContent() as Double)
+          players.add(player)
+        } catch (NullPointerException ignored){}
       }
     }
 
     players.removeAll { Player player ->
-      player.getName() == null
+      player.getName() == null || player.getName().trim() == ""
     }
 
     players.removeAll() { Player player ->

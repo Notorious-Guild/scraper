@@ -2,6 +2,7 @@ package Scraper.WCL
 
 import Scraper.Models.Player
 import Scraper.Util.ClassColors
+import Scraper.Util.Helpers
 import Scraper.Util.HttpUtil
 import Scraper.WCL.Queries.GetPlayerData
 
@@ -33,6 +34,8 @@ abstract class WCLRequest {
   }
 
   protected Player requestPlayerData(String playerName, String serverName, Player player = new Player()) {
+    log.debug("Requesting data from WarcraftLogs for $playerName-$serverName")
+
     HttpPost get = new HttpPost("$api_uri/api/v2/client")
     get.setHeader("Authorization", "Bearer $accessToken")
     get.setHeader("Content-Type", "application/json")
@@ -53,23 +56,31 @@ abstract class WCLRequest {
     EntityUtils.consume(response.getEntity())
 
     if (responseCode != 200) {
-      throw new Exception("Warcraftlogs responded with a non-200 status code.")
+      log.error("Warcraftlogs responded with a non-200 status code while accessing character ${playerName}-${serverName}")
+      return null
     }
 
     if (!responseObject["data"]["player"]["character"]) {
-      log.error("Character $playerName-$serverName does not exist on Warcraftlogs.")
+      log.debug("Character $playerName-$serverName does not exist on Warcraftlogs.")
       return null
     }
 
     if (responseObject["data"]["player"]["character"]["gameData"]["error"]) {
-      log.error("Character $playerName-$serverName has an out of date Warcraftlogs profile. Will attempt to update.")
+      log.warn("Character $playerName-$serverName has an out of date Warcraftlogs profile. Will attempt to update.")
       updateWarcraftlogsProfile(responseObject['data']['player']['character']['canonicalID'] as String)
       return null
     }
 
     Map zoneRankings = responseObject["data"]["player"]["character"]["zoneRankings"] as Map
     Map characterData = responseObject["data"]["player"]["character"]["gameData"]["global"] as Map
-    player.setName(characterData["name"] as String)
+
+    if (characterData['name'] != player.name || characterData['realm']['name'] != player.server) {
+      log.warn("Character $playerName-$serverName does not match ${ characterData['name'] }-${ characterData['realm']['name'] } found on WarcraftLogs. Will attempt to update their profiles.")
+      updateWarcraftlogsProfile(responseObject['data']['player']['character']['canonicalID'] as String)
+      Helpers.updateWowProgressProfile(playerName, serverName)
+      return null
+    }
+
     player.setServer(characterData["realm"]["name"] as String)
     player.setServerSlug(characterData["realm"]["slug"] as String)
     player.setPlayerClass(characterData["character_class"]["name"] as String)

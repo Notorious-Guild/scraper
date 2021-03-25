@@ -74,7 +74,6 @@ abstract class WCLRequest {
     Map zoneRankings = responseObject["data"]["player"]["character"]["zoneRankings"] as Map
     Map characterData = responseObject["data"]["player"]["character"]["gameData"]["global"] as Map
 
-    //TODO: make this use the slug
     if (characterData['name'] != player.name || characterData['realm']['name'] != player.server) {
       log.warn("Character $playerName-$serverName does not match ${ characterData['name'] }-${ characterData['realm']['name'] } found on WarcraftLogs. Will attempt to update their profiles.")
       updateWarcraftlogsProfile(responseObject['data']['player']['character']['canonicalID'] as String)
@@ -82,9 +81,8 @@ abstract class WCLRequest {
       return null
     }
 
-    //TODO: Set this earlier from wowprog
+    player.setServer(characterData["realm"]["name"] as String)
     player.setServerSlug(characterData["realm"]["slug"] as String)
-
     player.setPlayerClass(characterData["character_class"]["name"] as String)
     player.setSpec(characterData["active_spec"]["name"] as String)
     def urlClass = player.getPlayerClass().toLowerCase().replaceAll(" ", new String())

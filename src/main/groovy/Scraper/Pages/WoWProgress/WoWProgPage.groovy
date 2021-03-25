@@ -1,12 +1,11 @@
 package Scraper.Pages.WoWProgress
 
 import Scraper.Pages.Page
+import Scraper.Util.Constants
 
 class WoWProgPage extends Page {
 
-  final static String WOWPROG_URL = "https://www.wowprogress.com"
-
   WoWProgPage(String url) {
-    pageUrl = WOWPROG_URL + url
+    pageUrl = Constants.WOWPROG_URL + url
   }
 }

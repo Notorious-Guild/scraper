@@ -15,6 +15,7 @@ The following information should help you to configure and start running your ow
 
 | Variable           | Explanation
 |:------------------:|:---------------------------------------------------------------------------------------------------------------:
+| LOG_LEVEL          | Level of logs you want to see outputted. Valid values are TRACE, DEBUG, INFO, WARN, ERROR.
 | HTTP_TIMEOUT       | Amount of milliseconds the http client will wait to establish a connection e.g. 10000 for 10 seconds.
 | FREQUENCY          | Amount of seconds between each run of the application.
 | DB_URL             | The JDBC url for the database the application will use, includes ip/port, username/password, and current schema.

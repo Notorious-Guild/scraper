@@ -181,6 +181,7 @@ class ScrapeResource {
           return
         }
       }
+      Thread.sleep(500)
     }
 
     // Process the denied players

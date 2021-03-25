@@ -49,11 +49,17 @@ class ScrapeResource {
       log.error("There was an error on the wowprogress lfg page. please check $lfgPage.pageUrl")
       return
     }
+
     List<Player> invalidPlayers = new ArrayList<Player>()
     List<String> addedPlayers = []
 
+    // remove existing players
+    players.removeAll {Player player ->
+      return database.playerExists(player)
+    }
+
     // update basic player info
-    players.each {Player player ->
+    players.each { Player player ->
       if (!profileRequest.update(player)) {
         invalidPlayers.add(player)
       }
@@ -75,7 +81,7 @@ class ScrapeResource {
 
     // update player data for player's that passed the filters
     players.each { player ->
-      log.info("Player $player.name processing...")
+      log.info("Player $player.name-$player.server processing...")
 
       WoWProgPage playerPage = new PlayerPage(player.name, player.serverSlug)
 
@@ -146,8 +152,8 @@ class ScrapeResource {
     players.each { player ->
 
       Map links = [
-          warcraftLogs: "https://www.warcraftlogs.com/character/us/$player.serverSlug/$player.name#difficulty=5",
-          wowProgress : "https://www.wowprogress.com/character/us/$player.serverSlug/$player.name"
+        warcraftLogs: "https://www.warcraftlogs.com/character/us/$player.serverSlug/$player.name#difficulty=5",
+        wowProgress : "https://www.wowprogress.com/character/us/$player.serverSlug/$player.name"
       ]
 
       EmbedRequest request = new EmbedRequest(player, links, timeStamp)
@@ -158,13 +164,13 @@ class ScrapeResource {
         def code = response.getStatusLine().getStatusCode()
         EntityUtils.consume(response.getEntity())
         if (code != 204) {
-          log.info("Player $player.name unable to post to discord. (HTTP Status $code)")
+          log.info("Player $player.name-$player.server unable to post to discord. (HTTP Status $code)")
           return
         }
         database.insertPlayer(player)
         addedPlayers.add(player.getName())
       } catch (ConnectionPoolTimeoutException ignored) {
-        log.info("Player $player.name unable to post to discord. (Timeout)")
+        log.info("Player $player.name-$player.server unable to post to discord. (Timeout)")
         return
       }
       Thread.sleep(500)

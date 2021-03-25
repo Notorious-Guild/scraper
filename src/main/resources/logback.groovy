@@ -18,4 +18,6 @@ appender("STDOUT", ConsoleAppender) {
 def appAppenders = []
 appAppenders << "STDOUT"
 
-root(logLevelByString["INFO"], appAppenders)
+def logLevel = System.getenv('LOG_LEVEL') ?: 'INFO'
+
+root(logLevelByString[logLevel], appAppenders)

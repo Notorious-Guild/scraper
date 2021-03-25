@@ -61,8 +61,8 @@ abstract class WCLRequest {
     }
 
     if (!responseObject["data"]["player"]["character"]) {
-      log.warn("Character $playerName-$serverName does not exist on Warcraftlogs.")
-      return player
+      log.debug("Character $playerName-$serverName does not exist on Warcraftlogs.")
+      return null
     }
 
     if (responseObject["data"]["player"]["character"]["gameData"]["error"]) {

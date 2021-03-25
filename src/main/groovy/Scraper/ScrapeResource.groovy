@@ -51,8 +51,6 @@ class ScrapeResource {
     }
 
     List<Player> invalidPlayers = new ArrayList<Player>()
-    List<Player> acceptedPlayers = new ArrayList<Player>()
-    List<Player> deniedPlayers = new ArrayList<Player>()
     List<String> addedPlayers = []
 
     // remove existing players
@@ -72,20 +70,17 @@ class ScrapeResource {
       players.remove(player)
     }
 
-    // filter players
-    players.each { Player player ->
+    // filters
+    players.removeAll { Player player ->
       int currentMythicProg = player.getProgress().split("/")[0] as Integer
 
-      if (currentMythicProg < MIN_PROGRESS
-        || player.getAvgPerformance() < PERFORMANCE_FILTER) {
-        acceptedPlayers += player
-      } else {
-        deniedPlayers += player
-      }
+      return currentMythicProg < MIN_PROGRESS
+        || player.getAvgPerformance() < PERFORMANCE_FILTER
+        || database.playerExists(player)
     }
 
     // update player data for player's that passed the filters
-    acceptedPlayers.each { player ->
+    players.each { player ->
       log.info("Player $player.name-$player.server processing...")
 
       WoWProgPage playerPage = new PlayerPage(player.name, player.serverSlug)
@@ -129,63 +124,57 @@ class ScrapeResource {
       return
     }
 
-    // Process the accepted players
-    if (acceptedPlayers.size() > 0) {
-      def hook = System.getenv("DISCORD_WEBHOOK")
-      HttpPost post = new HttpPost(hook)
-      post.setHeader("Content-Type", "application/json")
+    def hook = System.getenv("DISCORD_WEBHOOK")
+    HttpPost post = new HttpPost(hook)
+    post.setHeader("Content-Type", "application/json")
 
-      DateTime dt = DateTime.now(DateTimeZone.UTC)
+    DateTime dt = DateTime.now(DateTimeZone.UTC)
 
-      def hour = dt.getHourOfDay()
-      def min = dt.getMinuteOfHour()
-      def second = dt.getSecondOfMinute()
-      if (hour < 10) {
-        hour = "0$hour"
-      }
-      if (min < 10) {
-        min = "0$min"
-      }
-      if (second < 10) {
-        second = "0$second"
-      }
+    def hour = dt.getHourOfDay()
+    def min = dt.getMinuteOfHour()
+    def second = dt.getSecondOfMinute()
+    if (hour < 10) {
+      hour = "0$hour"
+    }
+    if (min < 10) {
+      min = "0$min"
+    }
+    if (second < 10) {
+      second = "0$second"
+    }
 
-      def date = "${dt.getYear()}-${dt.getMonthOfYear()}-${dt.getDayOfMonth()}"
-      def time = "${hour}:${min}:${second}"
+    def date = "${dt.getYear()}-${dt.getMonthOfYear()}-${dt.getDayOfMonth()}"
+    def time = "${hour}:${min}:${second}"
 
-      def timeStamp = "${date}T${time}.000Z"
+    def timeStamp = "${date}T${time}.000Z"
 
-      // post players to discord
-      acceptedPlayers.each { player ->
+    // post players to discord
+    players.each { player ->
 
-        Map links = [
-          warcraftLogs: "https://www.warcraftlogs.com/character/us/$player.serverSlug/$player.name#difficulty=5",
-          wowProgress : "https://www.wowprogress.com/character/us/$player.serverSlug/$player.name"
-        ]
+      Map links = [
+        warcraftLogs: "https://www.warcraftlogs.com/character/us/$player.serverSlug/$player.name#difficulty=5",
+        wowProgress : "https://www.wowprogress.com/character/us/$player.serverSlug/$player.name"
+      ]
 
-        EmbedRequest request = new EmbedRequest(player, links, timeStamp)
+      EmbedRequest request = new EmbedRequest(player, links, timeStamp)
 
-        post.setEntity(request.toEntity())
-        try {
-          CloseableHttpResponse response = httpClient.execute(post)
-          def code = response.getStatusLine().getStatusCode()
-          EntityUtils.consume(response.getEntity())
-          if (code != 204) {
-            log.info("Player $player.name-$player.server unable to post to discord. (HTTP Status $code)")
-            return
-          }
-          database.insertPlayer(player)
-          addedPlayers.add(player.getName())
-        } catch (ConnectionPoolTimeoutException ignored) {
-          log.info("Player $player.name-$player.server unable to post to discord. (Timeout)")
+      post.setEntity(request.toEntity())
+      try {
+        CloseableHttpResponse response = httpClient.execute(post)
+        def code = response.getStatusLine().getStatusCode()
+        EntityUtils.consume(response.getEntity())
+        if (code != 204) {
+          log.info("Player $player.name-$player.server unable to post to discord. (HTTP Status $code)")
           return
         }
+        database.insertPlayer(player)
+        addedPlayers.add(player.getName())
+      } catch (ConnectionPoolTimeoutException ignored) {
+        log.info("Player $player.name-$player.server unable to post to discord. (Timeout)")
+        return
       }
       Thread.sleep(500)
     }
-
-    // Process the denied players
-
 
     database.closeConnection()
     log.info("${addedPlayers.size()} player(s) were added from this process")

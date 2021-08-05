@@ -1,51 +1,56 @@
 plugins {
-    id 'groovy'
-    id 'application'
-    id 'idea'
+  id 'groovy'
+  id 'application'
+  id 'idea'
 }
 
 group 'gg.notorious'
 
 application {
-    applicationName = 'Notorious Scraper'
-    mainClassName = 'Scraper.Application'
-    applicationDefaultJvmArgs = ['-Dgreeting.language=en']
-    archivesBaseName = "app"
+  applicationName = 'Notorious Scraper'
+  applicationDefaultJvmArgs = ['-Dgreeting.language=en']
+  archivesBaseName = "app"
+  mainClass.set('Scraper.Application')
+
+  buildScan {
+    termsOfServiceUrl = "https://gradle.com/terms-of-service"
+    termsOfServiceAgree = "yes"
+  }
 }
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 task stage(dependsOn: ['build', 'clean', 'buildApp'])
 build.mustRunAfter clean
 
 dependencies {
-    compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
-    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.14'
-    compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.1'
-    compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.13'
-    compile group: 'org.apache.commons', name: 'commons-email', version: '1.2'
-    compile group: 'commons-io', name: 'commons-io', version: '2.6'
-    compile group: 'joda-time', name: 'joda-time', version: '2.10.8'
-    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.19'
-    compile group: 'net.sourceforge.htmlcleaner', name: 'htmlcleaner', version: '2.24'
-    compile 'net.logstash.logback:logstash-logback-encoder:4.7'
-    compile 'javax.activation:activation:1.1.1'
-    compile 'org.codehaus.groovy:groovy-all:3.0.6'
-    compile 'ch.qos.logback:logback-core:1.2.3'
-    compile 'ch.qos.logback:logback-classic:1.2.3'
+  implementation group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
+  implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
+  implementation group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.14'
+  implementation group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.1'
+  implementation group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.13'
+  implementation group: 'org.apache.commons', name: 'commons-email', version: '1.2'
+  implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+  implementation group: 'joda-time', name: 'joda-time', version: '2.10.8'
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.19'
+  implementation group: 'net.sourceforge.htmlcleaner', name: 'htmlcleaner', version: '2.24'
+  implementation 'net.logstash.logback:logstash-logback-encoder:4.7'
+  implementation 'javax.activation:activation:1.1.1'
+  implementation 'org.codehaus.groovy:groovy-all:3.0.6'
+  implementation 'ch.qos.logback:logback-core:1.2.3'
+  implementation 'ch.qos.logback:logback-classic:1.2.3'
 
-    testCompile 'org.slf4j:slf4j-api:1.7.30'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+  implementation 'org.slf4j:slf4j-api:1.7.30'
+  implementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 task buildApp(type: Jar) {
-    from files(sourceSets.main.output.classesDirs)
-    from configurations.runtime.asFileTree.files.collect { zipTree(it) }
+  from files(sourceSets.main.output.classesDirs)
+  from configurations.runtimeClasspath.asFileTree.files.collect { zipTree(it) }
 
-    manifest {
-        attributes 'Main-Class': 'Scraper.Application'
-    }
+  manifest {
+    attributes 'Main-Class': 'Scraper.Application'
+  }
 }

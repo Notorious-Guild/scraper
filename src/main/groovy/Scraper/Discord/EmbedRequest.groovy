@@ -27,13 +27,13 @@ class EmbedRequest {
               "inline": false
             ],
             [
-              "name": "Best Historic Average Parse",
-              "value": "$player.avgPerformance%",
+              "name": "Heroic Parse",
+              "value": "$player.heroicPerformance%",
               "inline": false
             ],
             [
-              "name": "Median Parse",
-              "value": "$player.medianPerformance%",
+              "name": "Mythic Parse",
+              "value": "$player.mythicPerformance%",
               "inline": false
             ],
             [

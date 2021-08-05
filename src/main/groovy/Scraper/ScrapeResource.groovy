@@ -75,7 +75,7 @@ class ScrapeResource {
       int currentMythicProg = player.getProgress().split("/")[0] as Integer
 
       return currentMythicProg < MIN_PROGRESS
-        || player.getAvgPerformance() < PERFORMANCE_FILTER
+        || player.getMythicPerformance() < PERFORMANCE_FILTER
         || database.playerExists(player)
     }
 

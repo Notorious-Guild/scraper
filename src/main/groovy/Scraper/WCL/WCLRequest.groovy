@@ -71,7 +71,8 @@ abstract class WCLRequest {
       return null
     }
 
-    Map zoneRankings = responseObject["data"]["player"]["character"]["zoneRankings"] as Map
+    Map heroicRankings = responseObject["data"]["player"]["character"]["zoneRankings"]["heroic"] as Map
+    Map mythicRankings = responseObject["data"]["player"]["character"]["zoneRankings"]["mythic"] as Map
     Map characterData = responseObject["data"]["player"]["character"]["gameData"]["global"] as Map
 
     if (characterData['name'] != player.name || characterData['realm']['name'] != player.server) {
@@ -89,20 +90,20 @@ abstract class WCLRequest {
     def urlSpec = player.getSpec().toLowerCase().replaceAll(" ", new String())
     player.setSpecIconUrl("$icon_uri/$urlClass-${urlSpec}.jpg")
     player.setClassColor(ClassColors.get(player.getPlayerClass().toLowerCase()))
-    if (zoneRankings["difficulty"] == 5) {
+    if (mythicRankings) {
       int prog = 0
-      zoneRankings["rankings"].each { it["rankPercent"] ? prog++ : prog }
+      mythicRankings["rankings"].each { it["rankPercent"] ? prog++ : prog }
       player.setProgress("$prog/10")
     } else {
       player.setProgress("0/10")
     }
 
     DecimalFormat df = new DecimalFormat("#.##")
-    if (zoneRankings['bestPerformanceAverage']) {
-      player.setAvgPerformance(df.format(zoneRankings['bestPerformanceAverage']) as Double)
+    if (heroicRankings['bestPerformanceAverage']) {
+      player.setHeroicPerformance(df.format(heroicRankings['bestPerformanceAverage']) as Double)
     }
-    if (zoneRankings['medianPerformanceAverage']) {
-      player.setMedianPerformance(df.format(zoneRankings["medianPerformanceAverage"]) as Double)
+    if (mythicRankings['bestPerformanceAverage']) {
+      player.setMythicPerformance(df.format(mythicRankings['bestPerformanceAverage']) as Double)
     }
 
     return player

@@ -15,8 +15,8 @@ class Player {
   String progress
 
   Double itemLevel
-  Double avgPerformance
-  Double medianPerformance
+  Double heroicPerformance
+  Double mythicPerformance
   Double currentIO
   Double previousIO
 
